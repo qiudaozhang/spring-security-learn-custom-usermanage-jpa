@@ -1,11 +1,9 @@
 package com.qiudaozhang.springsecuritylearn.config;
 
-import com.qiudaozhang.springsecuritylearn.security.filter.SmsFilter;
 import com.qiudaozhang.springsecuritylearn.security.filter.TokenFilter;
-import com.qiudaozhang.springsecuritylearn.security.filter.UsernamePasswordFilter;
+import com.qiudaozhang.springsecuritylearn.security.provider.SmsProvider;
 import com.qiudaozhang.springsecuritylearn.security.provider.TokenProvider;
 import com.qiudaozhang.springsecuritylearn.security.provider.UsernamePasswordProvider;
-import com.qiudaozhang.springsecuritylearn.security.provider.SmsProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,10 +37,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // filter
     @Resource
-    private UsernamePasswordFilter usernamePasswordFilter;
-    @Resource
-    private SmsFilter smsFilter;
-    @Resource
     private TokenFilter tokenFilter;
 
 
@@ -56,9 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         // 重写该方法之后必须指定认证方式，否则请求的时候 -u user:pwd 提交了数据也无法知道用户是谁
-        http.addFilterAt(usernamePasswordFilter, BasicAuthenticationFilter.class)
-                .addFilterAfter(smsFilter,BasicAuthenticationFilter.class)
-                .addFilterAfter(tokenFilter,BasicAuthenticationFilter.class);
+        http.addFilterAfter(tokenFilter,BasicAuthenticationFilter.class);
         http.httpBasic();
     }
 
