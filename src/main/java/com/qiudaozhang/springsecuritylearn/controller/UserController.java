@@ -5,8 +5,6 @@ import com.qiudaozhang.springsecuritylearn.req.PwdChangeReq;
 import com.qiudaozhang.springsecuritylearn.req.UserReq;
 import com.qiudaozhang.springsecuritylearn.service.UserService;
 import com.qiudaozhang.springsecuritylearn.vo.UserVo;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

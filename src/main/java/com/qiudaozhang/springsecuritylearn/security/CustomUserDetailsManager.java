@@ -40,12 +40,6 @@ public class CustomUserDetailsManager implements UserDetailsManager {
             UserDetailsWrap udw = (UserDetailsWrap) user;
             userAuthDao.save(udw.getUserAuth());
         }
-//        List<String> collect = user.getAuthorities().stream().map(c -> c.getAuthority()).collect(Collectors.toList());
-//        UserAuth.UserAuthBuilder builder = UserAuth.builder();
-//        UserAuth ua = builder.username(user.getUsername())
-//                .password(user.getPassword())
-//                .build();
-
     }
 
     @Override

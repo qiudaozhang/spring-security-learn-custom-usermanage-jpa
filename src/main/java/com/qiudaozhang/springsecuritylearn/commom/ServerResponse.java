@@ -2,7 +2,6 @@ package com.qiudaozhang.springsecuritylearn.commom;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 /**
  * @author 邱道长
