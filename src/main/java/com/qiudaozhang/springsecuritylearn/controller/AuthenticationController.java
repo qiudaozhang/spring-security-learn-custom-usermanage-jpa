@@ -18,7 +18,7 @@ public class AuthenticationController {
     @GetMapping("auth/test")
     public String test() {
         System.out.println("test");
-        return "ok";
+        return "测试中文";
     }
 
 

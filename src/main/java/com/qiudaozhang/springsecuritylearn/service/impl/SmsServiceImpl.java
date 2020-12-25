@@ -34,7 +34,7 @@ public class SmsServiceImpl implements SmsService {
                 // 登录
                 key = RedisKeys.PHONE_LOGIN_CODE + smsReq.getPhone();
                 redisTemplate.opsForValue().set(key, CodeGenerator.codeNumber(),60 * 3, TimeUnit.SECONDS);
-                return ServerResponse.error("登录验证码已发送，请在3分钟内使用。");
+                return ServerResponse.success("登录验证码已发送，请在3分钟内使用。");
         }
         return null;
     }

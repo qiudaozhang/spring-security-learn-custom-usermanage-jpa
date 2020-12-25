@@ -20,8 +20,11 @@ public class SmsController {
 
     @Resource
     private SmsService smsService;
-
-    @PostMapping("send")
+//
+//    @PostMapping(value = "send",produces = {
+//            "application/json;charset=UTF-8"
+//    })
+    @PostMapping(value = "send")
     public ServerResponse send(@RequestBody SmsReq smsReq) {
         return smsService.send(smsReq);
     }
