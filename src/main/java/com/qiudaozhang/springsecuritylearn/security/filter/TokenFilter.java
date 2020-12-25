@@ -1,7 +1,7 @@
 package com.qiudaozhang.springsecuritylearn.security.filter;
 
 import com.qiudaozhang.springsecuritylearn.security.authentications.SmsAuthentication;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.qiudaozhang.springsecuritylearn.security.authentications.TokenAuthentication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,27 +21,28 @@ import java.io.IOException;
  * 2020/12/25
  */
 @Component
-public class SmsFilter extends OncePerRequestFilter {
+public class TokenFilter extends OncePerRequestFilter {
 
-    @Resource
-    private AuthenticationManager authenticationManager;
+//    @Resource
+//    private AuthenticationManager authenticationManager;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String phone = request.getParameter("phone");
-        String code = request.getParameter("code");
+        String token = request.getHeader("Authorization");
 
-        if(!StringUtils.hasLength(phone) || StringUtils.hasLength(code)) {
-            System.out.println("非手机号登录");
+        if(!StringUtils.hasLength(token)  ) {
+            System.out.println("非法凭证！");
         } else {
             // 这是基于手机号和验证码请求
-            Authentication authentication = new SmsAuthentication(phone,code);
-            // 校验
-            Authentication authenticate = authenticationManager.authenticate(authentication);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.println(".... ");
+//            Authentication authentication = new SmsAuthentication(phone,code);
+//            // 校验
+//            Authentication authenticate = authenticationManager.authenticate(authentication);
+            Authentication a = new TokenAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(a);
         }
         filterChain.doFilter(request,response);
 

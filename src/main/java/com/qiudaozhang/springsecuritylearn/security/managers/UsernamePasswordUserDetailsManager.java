@@ -3,6 +3,7 @@ package com.qiudaozhang.springsecuritylearn.security.managers;
 import com.qiudaozhang.springsecuritylearn.dao.UserAuthDao;
 import com.qiudaozhang.springsecuritylearn.entity.UserAuth;
 import com.qiudaozhang.springsecuritylearn.entity.wrap.UserDetailsWrap;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -104,7 +105,7 @@ public class UsernamePasswordUserDetailsManager implements UserDetailsManager {
                     .build();
             return userDetails;
         }
-        return null;
+        throw new BadCredentialsException("用户名或密码错误!");
     }
 
 }

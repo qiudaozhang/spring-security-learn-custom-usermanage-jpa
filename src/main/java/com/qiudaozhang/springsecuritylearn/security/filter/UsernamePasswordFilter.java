@@ -1,8 +1,8 @@
 package com.qiudaozhang.springsecuritylearn.security.filter;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.AuthenticationManager;
+import com.qiudaozhang.springsecuritylearn.config.pojo.IgnoreUri;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -20,8 +20,12 @@ import java.util.Enumeration;
  */
 
 @Component
+@Setter
+@Getter
 public class UsernamePasswordFilter extends OncePerRequestFilter {
 
+    @Resource
+    private IgnoreUri ignoreUri;
 
 //    @Autowired
 //    // 它使用用户名和密码认证管理器
@@ -45,6 +49,10 @@ public class UsernamePasswordFilter extends OncePerRequestFilter {
     // 不应该被过滤的
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getServletPath().equals("/login");
+        String uri = request.getServletPath();
+        System.out.println("ignore uri : " + ignoreUri );
+        boolean b = ignoreUri.getUri().stream().anyMatch(c -> c.equals(uri));
+        return b;
+//        return request.getServletPath().equals("/login");
     }
 }

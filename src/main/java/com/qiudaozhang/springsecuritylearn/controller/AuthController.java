@@ -3,9 +3,8 @@ package com.qiudaozhang.springsecuritylearn.controller;
 import com.qiudaozhang.springsecuritylearn.commom.ServerResponse;
 import com.qiudaozhang.springsecuritylearn.req.Loginup;
 import com.qiudaozhang.springsecuritylearn.service.UserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.qiudaozhang.springsecuritylearn.service.impl.UserTokenService;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -20,10 +19,18 @@ public class AuthController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private UserTokenService userTokenService;
+
     // 用户名密码登录
     @PostMapping("login/up")
-    public ServerResponse login(Loginup req) {
+    public ServerResponse login(@RequestBody Loginup req) {
        return userService.login(req);
+    }
+
+    @GetMapping("uid")
+    public ServerResponse uid () {
+        return ServerResponse.success(userTokenService.currentUid());
     }
 
 }
