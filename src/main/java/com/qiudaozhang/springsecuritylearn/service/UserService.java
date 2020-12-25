@@ -1,6 +1,7 @@
 package com.qiudaozhang.springsecuritylearn.service;
 
 import com.qiudaozhang.springsecuritylearn.commom.ServerResponse;
+import com.qiudaozhang.springsecuritylearn.req.LoginPhoneCode;
 import com.qiudaozhang.springsecuritylearn.req.Loginup;
 import com.qiudaozhang.springsecuritylearn.req.PwdChangeReq;
 import com.qiudaozhang.springsecuritylearn.req.UserReq;
@@ -27,4 +28,6 @@ public interface UserService {
      * @return
      */
     ServerResponse login(Loginup req);
+
+    ServerResponse login(LoginPhoneCode req);
 }

@@ -2,7 +2,8 @@
 -- create DATABASE spring_security;
 -- use spring_security;
 -- show tables;
-insert into user_auth (username,password,uid) values('admin','$2a$10$X5Uqkt9lEzl.x3D4ZmvQGOVq8TNiHT4kYd66BYcqOrwZOvjg64Frq','791915576020873216');
+insert into user_auth (username,password,uid,phone)
+ values('admin','$2a$10$X5Uqkt9lEzl.x3D4ZmvQGOVq8TNiHT4kYd66BYcqOrwZOvjg64Frq','791915576020873216','13312341234');
 
 
 INSERT INTO spring_security.authority (authority, description, uri) VALUES ('all', '所有', '/**');

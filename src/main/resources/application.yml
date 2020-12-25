@@ -26,3 +26,5 @@ ignore:
   uri:
     - /api/v1/user/login/up
     - /api/v1/user/login/sms
+    - /api/v1/sms/send
+

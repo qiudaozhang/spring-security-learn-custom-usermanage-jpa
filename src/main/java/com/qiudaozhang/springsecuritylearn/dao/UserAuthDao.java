@@ -13,5 +13,9 @@ public interface UserAuthDao  extends JpaRepository<UserAuth,Long> {
 
     Optional<UserAuth> findUserAuthByUsername(String username);
 
+    Optional<UserAuth> findUserAuthByPhone(String phone);
+
     int  deleteUserAuthByUsername(String username);
+
+
 }

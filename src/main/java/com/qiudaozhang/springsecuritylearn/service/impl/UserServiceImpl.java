@@ -2,35 +2,34 @@ package com.qiudaozhang.springsecuritylearn.service.impl;
 
 import com.qiudaozhang.springsecuritylearn.commom.SequenceGenerator;
 import com.qiudaozhang.springsecuritylearn.commom.ServerResponse;
+import com.qiudaozhang.springsecuritylearn.consts.RedisKeys;
 import com.qiudaozhang.springsecuritylearn.dao.UserAuthDao;
 import com.qiudaozhang.springsecuritylearn.dto.UserTokenDto;
 import com.qiudaozhang.springsecuritylearn.entity.Authority;
 import com.qiudaozhang.springsecuritylearn.entity.UserAuth;
 import com.qiudaozhang.springsecuritylearn.entity.wrap.UserDetailsWrap;
+import com.qiudaozhang.springsecuritylearn.req.LoginPhoneCode;
 import com.qiudaozhang.springsecuritylearn.req.Loginup;
 import com.qiudaozhang.springsecuritylearn.req.PwdChangeReq;
 import com.qiudaozhang.springsecuritylearn.req.UserReq;
 import com.qiudaozhang.springsecuritylearn.service.AuthorityService;
 import com.qiudaozhang.springsecuritylearn.service.UserService;
+import com.qiudaozhang.springsecuritylearn.service.UserTokenService;
 import com.qiudaozhang.springsecuritylearn.util.TimeUtil;
-import com.qiudaozhang.springsecuritylearn.util.TokenUtil;
 import com.qiudaozhang.springsecuritylearn.vo.UserVo;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -57,6 +56,9 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private UserAuthDao userAuthDao;
+
+    @Resource
+    private UserTokenService userTokenService;
 
     @Resource
     private RedisTemplate redisTemplate;
@@ -140,21 +142,75 @@ public class UserServiceImpl implements UserService {
 
                 // 返回一个token todo
                 Long uid = userAuthDao.findUserAuthByUsername(req.getUsername()).get().getUid();
-                String token = TokenUtil.token
-                        (uid,
-                        TimeUtil.ONE_DAY_SECONDS,
-                                SignatureAlgorithm.HS512,
-                                jwtKey);
-                UserTokenDto dto = new UserTokenDto();
-                dto.setUid(uid);
-                redisTemplate.opsForValue().set("USER_TOKEN:" + token,
-                        dto,
-                        TimeUtil.ONE_DAY_SECONDS,
-                        TimeUnit.MILLISECONDS);
-
+                String token = userTokenService.token(uid);
+                loginTokenHandle(uid, token);
                 return ServerResponse.success(token);
             }
         }
         return ServerResponse.error("用户名或密码错误！");
+    }
+
+    private void loginTokenHandle(Long uid, String token) {
+        UserTokenDto dto = new UserTokenDto();
+        dto.setUid(uid);
+        deleteLastToken(uid);
+        redisTemplate.opsForValue().set("USER_TOKEN:" + token,
+                dto,
+                TimeUtil.ONE_DAY_SECONDS,
+                TimeUnit.MILLISECONDS);
+        // 存储新映射
+        redisTemplate.opsForValue().set("UID:"+ uid,"USER_TOKEN:" + token,TimeUtil.ONE_DAY_SECONDS,TimeUnit.SECONDS);
+    }
+
+    @Override
+    public ServerResponse login(LoginPhoneCode req) {
+        System.out.println("手机号和验证码登录");
+//
+        boolean b = checkLoginCode(req);
+        if(!b)  {
+            return ServerResponse.error("验证码错误或已过期!");
+        }
+        // 如果OK，完成登录
+        // 根据 手机号查询用户
+        // todo
+        Optional<UserAuth> op = userAuthDao.findUserAuthByPhone(req.getPhone());
+
+        if(op.isPresent()) {
+            // 已经存在用户
+            UserAuth u = op.get();
+            Long uid = u.getUid();
+            String token = userTokenService.token(uid);
+            loginTokenHandle(uid,token);
+            // 删除登录验证码
+            redisTemplate.delete(RedisKeys.PHONE_LOGIN_CODE + req.getPhone());
+            return ServerResponse.success(token);
+
+        } else {
+            // 未注册的用户 todo
+        }
+
+        return ServerResponse.error("未知错误！");
+    }
+
+    private boolean checkLoginCode(LoginPhoneCode req) {
+        String phone = req.getPhone();
+        String key = RedisKeys.PHONE_LOGIN_CODE + phone;
+        Object o = redisTemplate.opsForValue().get(key);
+        if(o == null) {
+            return false;
+        }
+        if(req.getCode().equals(o.toString())) {
+            return true;
+        }
+        return false;
+    }
+
+    private void deleteLastToken(Long uid) {
+        String key = "UID:" + uid;
+        Object o = redisTemplate.opsForValue().get(key);
+        if(o != null) {
+            redisTemplate.delete(o.toString());
+        }
+
     }
 }
