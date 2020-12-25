@@ -1,6 +1,7 @@
 package com.qiudaozhang.springsecuritylearn.service;
 
 import com.qiudaozhang.springsecuritylearn.commom.ServerResponse;
+import com.qiudaozhang.springsecuritylearn.req.Loginup;
 import com.qiudaozhang.springsecuritylearn.req.PwdChangeReq;
 import com.qiudaozhang.springsecuritylearn.req.UserReq;
 import com.qiudaozhang.springsecuritylearn.vo.UserVo;
@@ -18,4 +19,12 @@ public interface UserService {
     ServerResponse changePassword( PwdChangeReq req);
 
     ServerResponse  delete(String username);
+
+    /**
+     * 处理登录请求
+     * 用户名密码模式
+     * @param req
+     * @return
+     */
+    ServerResponse login(Loginup req);
 }

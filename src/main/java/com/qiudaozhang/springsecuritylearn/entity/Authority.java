@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -17,8 +18,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Authority implements GrantedAuthority {
+public class Authority implements GrantedAuthority, Serializable {
 
+    private static final long serialVersionUID = -5079651242454022139L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,8 +39,13 @@ public class Authority implements GrantedAuthority {
                     )
             },
             inverseJoinColumns = {
-                    @JoinColumn(name = "user_auth_id")
-            })
+                    @JoinColumn(name = "user_auth_id",
+                            referencedColumnName = "uid")
+            }
+
+    )
+    // 移除物理外键
+    @org.hibernate.annotations.ForeignKey(name = "none")
     private List<UserAuth> userAuth;
 
 

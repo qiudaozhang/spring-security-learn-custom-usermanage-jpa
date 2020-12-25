@@ -1,11 +1,21 @@
 package com.qiudaozhang.springsecuritylearn.config;
 
+import com.qiudaozhang.springsecuritylearn.security.filter.SmsFilter;
+import com.qiudaozhang.springsecuritylearn.security.filter.UsernamePasswordFilter;
+import com.qiudaozhang.springsecuritylearn.security.provider.UsernamePasswordProvider;
+import com.qiudaozhang.springsecuritylearn.security.provider.SmsProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import javax.annotation.Resource;
 
 /**
  * @author 邱道长
@@ -18,19 +28,43 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    @Resource
 //    private DataSource dataSource;
 
+    @Resource
+    private UsernamePasswordProvider passwordProvider;
+    @Resource
+    private SmsProvider smsProvider;
 
+    @Resource
+    private UsernamePasswordFilter usernamePasswordFilter;
+    @Resource
+    private SmsFilter smsFilter;
 
 
     // 定义一个密码编码器
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         // 重写该方法之后必须指定认证方式，否则请求的时候 -u user:pwd 提交了数据也无法知道用户是谁
+        http.addFilterAt(usernamePasswordFilter, BasicAuthenticationFilter.class)
+                .addFilterAfter(smsFilter,BasicAuthenticationFilter.class);
         http.httpBasic();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(passwordProvider);
+        auth.authenticationProvider(smsProvider);
+    }
+
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        AuthenticationManager authenticationManager = super.authenticationManagerBean();
+        System.out.println(authenticationManager);
+        return authenticationManager;
     }
 }

@@ -1,4 +1,4 @@
-package com.qiudaozhang.springsecuritylearn.security;
+package com.qiudaozhang.springsecuritylearn.security.managers;
 
 import com.qiudaozhang.springsecuritylearn.dao.UserAuthDao;
 import com.qiudaozhang.springsecuritylearn.entity.UserAuth;
@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 
@@ -21,14 +22,14 @@ import java.util.stream.Collectors;
  * 2020/12/24
  * 自定义用户管理
  */
-@Component(value = "customUserDetailsManager")
-public class CustomUserDetailsManager implements UserDetailsManager {
-//
-//    @Resource
-//    private Authentication authentication;
+@Component(value = "usernamePasswordUserDetailsManager")
+public class UsernamePasswordUserDetailsManager implements UserDetailsManager {
 
     @Resource
     private UserAuthDao userAuthDao;
+
+    @Resource
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public void createUser(UserDetails user) {
@@ -67,7 +68,7 @@ public class CustomUserDetailsManager implements UserDetailsManager {
             Optional<UserAuth> op = userAuthDao.findUserAuthByUsername(name);
         if(op.isPresent()) {
             UserAuth userAuth = op.get();
-            if(oldPassword.equals(userAuth.getPassword())) {
+            if(passwordEncoder.matches(oldPassword,userAuth.getPassword())) {
                 userAuth.setPassword(newPassword);
                 userAuthDao.save(userAuth);
             } else {
