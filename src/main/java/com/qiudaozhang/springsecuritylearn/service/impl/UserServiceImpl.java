@@ -14,9 +14,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  * 2020/12/24
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class UserServiceImpl implements UserService {
 
 
@@ -67,8 +68,6 @@ public class UserServiceImpl implements UserService {
 
             builder.username(u.getUsername())
                     .password(u.getPassword());
-
-
             List<String> authorities = u.getAuthorities().stream().map(c -> c.getAuthority()).collect(Collectors.toList());
             builder.authorities(authorities);
             return ServerResponse.success(builder.build());
