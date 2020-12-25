@@ -11,5 +11,6 @@ public interface RedisKeys {
      */
     String PHONE_LOGIN_CODE = "PHONE_LOGIN_CODE:";
 
+    String USER_ACCESS_TOKEN = "USER_TOKEN:";
 
 }

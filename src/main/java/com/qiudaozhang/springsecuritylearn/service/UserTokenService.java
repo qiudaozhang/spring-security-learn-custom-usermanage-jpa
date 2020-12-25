@@ -20,5 +20,7 @@ public interface UserTokenService {
      */
     String token(long uid);
 
+    boolean checkAccessToken(String token);
+
 //    void save(String key,String value);
 }

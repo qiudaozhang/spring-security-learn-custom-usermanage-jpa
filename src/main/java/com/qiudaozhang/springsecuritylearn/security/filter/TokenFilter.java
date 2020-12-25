@@ -1,8 +1,11 @@
 package com.qiudaozhang.springsecuritylearn.security.filter;
 
+import com.qiudaozhang.springsecuritylearn.config.pojo.IgnoreUri;
 import com.qiudaozhang.springsecuritylearn.security.authentications.SmsAuthentication;
 import com.qiudaozhang.springsecuritylearn.security.authentications.TokenAuthentication;
+import com.qiudaozhang.springsecuritylearn.service.UserTokenService;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -15,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author 邱道长
@@ -23,8 +27,13 @@ import java.io.IOException;
 @Component
 public class TokenFilter extends OncePerRequestFilter {
 
-//    @Resource
+    //    @Resource
 //    private AuthenticationManager authenticationManager;
+    @Resource
+    private IgnoreUri ignoreUri;
+
+    @Resource
+    private UserTokenService userTokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,24 +42,27 @@ public class TokenFilter extends OncePerRequestFilter {
 
         String token = request.getHeader("Authorization");
 
-        if(!StringUtils.hasLength(token)  ) {
-            System.out.println("非法凭证！");
+        if (!StringUtils.hasLength(token)) {
+            throw new BadCredentialsException("bad");
         } else {
-            // 这是基于手机号和验证码请求
-            System.out.println(".... ");
-//            Authentication authentication = new SmsAuthentication(phone,code);
-//            // 校验
-//            Authentication authenticate = authenticationManager.authenticate(authentication);
+            // 需要校验这个token是否合法
+
+            boolean b = userTokenService.checkAccessToken(token);
+            if(!b) {
+                throw new BadCredentialsException("bad");
+            }
             Authentication a = new TokenAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(a);
         }
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
 
     }
 
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getServletPath().equals("/login");
+        String uri = request.getServletPath();
+        boolean b = ignoreUri.getUri().stream().anyMatch(c -> c.equals(uri));
+        return b;
     }
 }

@@ -1,6 +1,7 @@
 package com.qiudaozhang.springsecuritylearn.service.impl;
 
 import com.qiudaozhang.springsecuritylearn.commom.ServerResponse;
+import com.qiudaozhang.springsecuritylearn.consts.RedisKeys;
 import com.qiudaozhang.springsecuritylearn.dto.UserTokenDto;
 import com.qiudaozhang.springsecuritylearn.service.UserTokenService;
 import com.qiudaozhang.springsecuritylearn.util.TimeUtil;
@@ -49,5 +50,12 @@ public class UserTokenServiceImpl implements UserTokenService {
                         SignatureAlgorithm.HS512,
                         jwtKey);
         return token;
+    }
+
+    @Override
+    public boolean checkAccessToken(String token) {
+        String key = RedisKeys.USER_ACCESS_TOKEN + token;
+        Boolean b = redisTemplate.hasKey(key);
+        return b;
     }
 }

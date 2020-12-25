@@ -27,10 +27,7 @@ public class UsernamePasswordFilter extends OncePerRequestFilter {
     @Resource
     private IgnoreUri ignoreUri;
 
-//    @Autowired
-//    // 它使用用户名和密码认证管理器
-//    @Qualifier(value = "usernamePasswordUserDetailsManager")
-//    private AuthenticationManager authenticationManager;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -50,9 +47,7 @@ public class UsernamePasswordFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String uri = request.getServletPath();
-        System.out.println("ignore uri : " + ignoreUri );
         boolean b = ignoreUri.getUri().stream().anyMatch(c -> c.equals(uri));
         return b;
-//        return request.getServletPath().equals("/login");
     }
 }

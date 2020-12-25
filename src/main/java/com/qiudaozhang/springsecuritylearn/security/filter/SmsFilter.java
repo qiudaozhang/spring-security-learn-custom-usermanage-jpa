@@ -1,5 +1,6 @@
 package com.qiudaozhang.springsecuritylearn.security.filter;
 
+import com.qiudaozhang.springsecuritylearn.config.pojo.IgnoreUri;
 import com.qiudaozhang.springsecuritylearn.security.authentications.SmsAuthentication;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +26,9 @@ public class SmsFilter extends OncePerRequestFilter {
 
     @Resource
     private AuthenticationManager authenticationManager;
+    @Resource
+    private IgnoreUri ignoreUri;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,6 +37,7 @@ public class SmsFilter extends OncePerRequestFilter {
 
         String phone = request.getParameter("phone");
         String code = request.getParameter("code");
+
 
         if(!StringUtils.hasLength(phone) || StringUtils.hasLength(code)) {
             System.out.println("非手机号登录");
@@ -50,6 +55,8 @@ public class SmsFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getServletPath().equals("/login");
+        String uri = request.getServletPath();
+        boolean b = ignoreUri.getUri().stream().anyMatch(c -> c.equals(uri));
+        return b;
     }
 }
